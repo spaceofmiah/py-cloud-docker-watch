@@ -35,6 +35,9 @@ install tqdm && python -c \"import time\ncounter = 0\nwhile
 True:\n\tprint(counter)\n\tcounter = counter + 1\n\ttime.sleep(0.1)\"' --aws-cloudwatch-group=test-task-group-1 --aws-cloudwatch-stream=test-task-stream-1 --aws-access-key-id=valid-access-key-id --aws-secret-access-key=valid-secret-access-key --aws-region=region
 ```
 
+### Getting Help
+Run `python main.py --help` to get help on running the script
+
 
 ##### Requirements:
 - argument parser: feed and parse arguments sent to script  ✅ 
