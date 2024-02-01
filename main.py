@@ -35,17 +35,8 @@ if __name__ == "__main__":
         docker_client.images.pull(args.docker_image)
         print(f"Image {args.docker_image} pulled successfully")
     
-    print(f"\Starting docker container from image {args.docker_image}")
-    container = docker_client.containers.run(args.docker_image, args.bash_command)
-    print(f"Docker container started with id {container.id}\n Container logs:\n\n")
+    print(f"\nStarting docker container from image {args.docker_image}")
+    container = docker_client.containers.run(args.docker_image, args.bash_command, detach=True)
+    print(f"Docker container started with id {container.id}\n<< logs:\n\n")
     for line in container.logs(stream=True):
         print(line.strip())
-
-    # print(
-    # "Docker Image: ", args.docker_image, "\nAWS CWG: ", 
-    # args.aws_cloudwatch_group, "\nAWS CWS: ", 
-    # args.aws_cloudwatch_stream, "\nAWS AKID: ", 
-    # args.aws_access_key_id, "\nAWS SAK: ", 
-    # args.aws_secret_access_key, "\nBash Script: \n\n", 
-    # args.bash_command, "\n\n",
-    # )
