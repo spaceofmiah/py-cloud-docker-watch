@@ -66,6 +66,9 @@ Notice the `\` before each command are fed and when they end ? this is so that w
 
 If you're running the program appropriately (with above example), your terminal would look like this 
 
+<img width="1010" alt="Constructing Script Command" src="https://github.com/spaceofmiah/py-cloud-docker-watch/assets/37231237/9477f629-3d09-4724-a885-ee404c735579">
+
+
 _Should in case you'll be using a different script for the `--bash-command` kindly **pay attention to the structure** of your script_
 
 > Following the above NOTE, you'll be able to feed the bash command with the right formatting.
