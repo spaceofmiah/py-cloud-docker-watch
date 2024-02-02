@@ -75,8 +75,8 @@ Run `python main.py --help` to get help on running the script
 
 
 ##### Requirements:
-- argument parser: feed and parse arguments sent to script  ✅ 
-- startup docker: start docker from python script 
+- argument parser: feed and parse arguments sent to script  ✅
+- startup docker: start docker from python script ✅
 - aws sdk: for cloud watch configuration
 
 ##### Tradeoffs:
