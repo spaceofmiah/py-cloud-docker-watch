@@ -66,12 +66,7 @@ Notice the `\` before each command are fed and when they end ? this is so that w
 
 If you're running the program appropriately (with above example), your terminal would look like this 
 
-###### IMPORTANT NOTE ON RUNNING SCRIPT
-
-Should in case you'll be using a different script for the `--bash-command` kindly **pay attention to the structure** of your script. In the above case we
-ran bash script, so 
-
-  `$"bash -c` was a necessity (although there are other ways to approach running bash script)  especially the for the `--bash-command` argument: carriage flags e.g `\n` & `\t`: where ever you see a `\n` use your return key [mac users] or enter key and where ever you see a `\t` use your tab key. This means that where you see a `\n\t`, it means you should use your return key and tab key. 
+_Should in case you'll be using a different script for the `--bash-command` kindly **pay attention to the structure** of your script_
 
 > Following the above NOTE, you'll be able to feed the bash command with the right formatting.
 
