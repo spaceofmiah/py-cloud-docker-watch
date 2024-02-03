@@ -80,12 +80,8 @@ Run `python main.py --help` to get help on running the script
 ##### Requirements:
 - argument parser: feed and parse arguments sent to script  ✅
 - startup docker: start docker from python script ✅
-- aws sdk: for cloud watch configuration
+- aws sdk: for cloud watch configuration ✅
 
-##### Tradeoffs:
-* Docker not installed ?
-  - [approach 1] Should program install docker on the machine depending on the OS ?
-  - [approach 2] Should program gracefully exit with the reason/cause so user handles for it ?
 
 
 
