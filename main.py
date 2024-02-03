@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from tap import Tap
 import docker
 import boto3
@@ -46,18 +47,6 @@ class CloudLog:
         self.stream = stream
         self.setup()
 
-    def put_log_events(self, log_events):
-        """
-        Sends log event to cloud
-
-        :param log_event: Event to send to cloudwatch
-        """
-        return self._client.put_log_events(
-            logGroupName=self.group, 
-            logStreamName=self.stream, 
-            logEvents=log_events
-        )
-
     def setup(self):
         """
         Configures instance ensuring the log group and log stream provided are available
@@ -79,6 +68,25 @@ class CloudLog:
                 self._client.create_log_stream(logGroupName=self.group, logStreamName=self.stream)
         except Exception as e:
             print(f"<< [ExecutionFailed]: CloudLog setup failed \n\n{e}")
+
+    def put_log_events(self, log):
+        """
+        Sends log event to cloud
+
+        :param log_event: Event to send to cloudwatch
+        """
+        try:
+            response = self._client.put_log_events(
+                logGroupName=self.group, 
+                logStreamName=self.stream, 
+                logEvents=[
+                    {'timestamp': int(time.time() * 1000), 'message': log}
+                ]
+            )
+            print(response)
+            return response
+        except Exception as e:
+            print(f"<< [ExecutionFailed]: Failed to send logs to CloudWatch: {e}")
 
 
 
@@ -130,18 +138,15 @@ if __name__ == "__main__":
         print(f"<< [ExecutionFailed]: CloudLog setup failed \n\n{e}")
         exit(1)
 
-    
-    for line in container.logs(stream=True):
+    try:
+        for log_line in container.logs(stream=True):
+            with ThreadPoolExecutor() as executor:
+                executor.submit(cloud_logger.put_log_events, str(log_line).strip())
+    except KeyboardInterrupt:
         try:
-            response = cloud_logger.put_log_events(
-                [
-                    {
-                        "timestamp": int(time.time() * 1000), 
-                        "message": f"{line.strip()}"
-                    }
-                ]
-            )
-            print(response)
+            container.stop()
+            container.remove()
+            print("<< [ExecutionStopped]: Running script successfully stoped")
         except Exception as e:
-            print(f"<< [ExecutionFailed]: Failed to send log to cloud \n\n{e}")
+            print(f"<< [ExecutionStopped]: Running script successfully stoped")
             exit(1)
