@@ -18,7 +18,7 @@ class ScriptArguments(Tap):
 class CloudLog:
     """Logger class streaming application logs to AWS CloudWatch"""
 
-    def __init__(self, group:str, stream:str, region, key_id, secret_id):
+    def __init__(self, group:str, stream:str, region:str, key_id:str, secret_id:str):
         """CloudLog initializer
         
         :param group: cloud watch log group name
@@ -69,7 +69,7 @@ class CloudLog:
         except Exception as e:
             print(f"<< [ExecutionLog]: CloudLog setup failed \n\n{e}")
 
-    def put_log_events(self, log):
+    def put_log_events(self, log:str):
         """
         Sends log event to cloud
 
@@ -90,12 +90,12 @@ class CloudLog:
 
 
 
-args = ScriptArguments(underscores_to_dashes=True).parse_args()
 
 
 
 # Run program on file invocation from shell/terminal/cmd
 if __name__ == "__main__":
+    args = ScriptArguments(underscores_to_dashes=True).parse_args()
     try:
         # Ensure docker is installed and is running as a daemon or desktop app otherwise alert user so they can start docker
         try:
