@@ -4,7 +4,7 @@ A script that creates a docker container while streaming container logs to AWS c
 ## Running the project
 Poetry is the package manager used in this project and can be downloaded from https://python-poetry.org/docs/#installation.
 
-Clone the project's repository to your local machine and change your directory from your terminal/powershell to project root.
+Clone the project's repository to your local machine and change directory using terminal/powershell to project root.
 
 1. `poetry shell` : Activates project's shell
 
