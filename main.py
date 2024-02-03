@@ -67,7 +67,7 @@ class CloudLog:
             else:
                 self._client.create_log_stream(logGroupName=self.group, logStreamName=self.stream)
         except Exception as e:
-            print(f"<< [ExecutionFailed]: CloudLog setup failed \n\n{e}")
+            print(f"<< [ExecutionLog]: CloudLog setup failed \n\n{e}")
 
     def put_log_events(self, log):
         """
@@ -86,7 +86,7 @@ class CloudLog:
             print(response)
             return response
         except Exception as e:
-            print(f"<< [ExecutionFailed]: Failed to send logs to CloudWatch: {e}")
+            print(f"<< [ExecutionLog]: Failed to send logs to CloudWatch: {e}")
 
 
 
@@ -96,57 +96,61 @@ args = ScriptArguments(underscores_to_dashes=True).parse_args()
 
 # Run program on file invocation from shell/terminal/cmd
 if __name__ == "__main__":
-    # Ensure docker is installed and is running as a daemon or desktop app otherwise alert user so they can start docker
     try:
-        docker_client = docker.from_env()
-    except Exception as e:
-        print("\n\n<< [ExecutionFailed]: Docker is not running on your machine. Start docker desktop and retry\n")
-        exit(1)
-    
-    # check if the docker image exists
-    print(f"<< Locating image {args.docker_image}...")
-    image_exists = len(docker_client.images.list(name=args.docker_image)) > 0
-    if image_exists is False:
+        # Ensure docker is installed and is running as a daemon or desktop app otherwise alert user so they can start docker
         try:
-            # Pull image from docker hub
-            print(f"<< Image {args.docker_image} not found\nKindly ensure you're connected to the internet\npulling...")
-            docker_client.images.pull(args.docker_image)
-            print(f"<< Image {args.docker_image} pulled successfully")
+            docker_client = docker.from_env()
         except Exception as e:
-            print(f"<< [ExecutionFailed]: Failed to pull image {args.docker_image} \n\n{e}")
+            print("\n\n<< [ExecutionLog]: Docker is not running on your machine. Start docker desktop and retry\n")
             exit(1)
-    
-    # Create docker container instance
-    try:
-        print(f"\n<< Starting docker container from image {args.docker_image}")
-        container = docker_client.containers.run(args.docker_image, command=args.bash_command, auto_remove=True, detach=True)
-        print(f"<< Docker container started with id {container.id}\n<< logs:\n\n")
-    except Exception as e:
-        print(f"<< [ExecutionFailed]: Docker container setup failed \n\n{e}")
-        exit(1)
+        
+        # check if the docker image exists
+        print(f"<< Locating image {args.docker_image}...")
+        image_exists = len(docker_client.images.list(name=args.docker_image)) > 0
+        if image_exists is False:
+            try:
+                # Pull image from docker hub
+                print(f"<< Image {args.docker_image} not found\nKindly ensure you're connected to the internet\npulling {args.docker_image}...")
+                docker_client.images.pull(args.docker_image)
+                print(f"<< Image {args.docker_image} pulled successfully")
+            except Exception as e:
+                print(f"<< [ExecutionLog]: Failed to pull image {args.docker_image} \n\n{e}")
+                exit(1)
+        
+        # Create docker container instance
+        try:
+            print(f"\n<< Starting docker container from image {args.docker_image}")
+            container = docker_client.containers.run(args.docker_image, command=args.bash_command, auto_remove=True, detach=True)
+            print(f"<< Docker container started with id {container.id}\n<< logs:\n\n")
+        except Exception as e:
+            print(f"<< [ExecutionLog]: Docker container setup failed \n\n{e}")
+            exit(1)
 
-    # Create CloudWatch logger instance
-    try:
-        cloud_logger = CloudLog(
-            secret_id=args.aws_secret_access_key,
-            stream=args.aws_cloudwatch_stream, 
-            group=args.aws_cloudwatch_group, 
-            key_id=args.aws_access_key_id, 
-            region=args.aws_region,
-        )
-    except Exception as e:
-        print(f"<< [ExecutionFailed]: CloudLog setup failed \n\n{e}")
-        exit(1)
+        # Create CloudWatch logger instance
+        try:
+            cloud_logger = CloudLog(
+                secret_id=args.aws_secret_access_key,
+                stream=args.aws_cloudwatch_stream, 
+                group=args.aws_cloudwatch_group, 
+                key_id=args.aws_access_key_id, 
+                region=args.aws_region,
+            )
+        except Exception as e:
+            print(f"<< [ExecutionLog]: CloudLog setup failed \n\n{e}")
+            exit(1)
 
-    try:
+        
         for log_line in container.logs(stream=True):
             with ThreadPoolExecutor() as executor:
                 executor.submit(cloud_logger.put_log_events, str(log_line).strip())
+
+    # Handle for when program execution is interruptted with keyboard interrupt.
     except KeyboardInterrupt:
+        print("\n<< [ExecutionLog]: Program is closing up...")
         try:
             container.stop()
             container.remove()
-            print("<< [ExecutionStopped]: Running script successfully stoped")
+            print("<< [ExecutionLog]: Program stopped")
         except Exception as e:
-            print(f"<< [ExecutionStopped]: Running script successfully stoped")
+            print(f"<< [ExecutionLog]: Program stopped")
             exit(1)
